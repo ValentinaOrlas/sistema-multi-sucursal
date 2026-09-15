@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: admin_app
       POSTGRES_PASSWORD: admin999
       POSTGRES_DB: multi_sucursal
+      TZ: "America/Bogota"
     ports:
       - "5432:5432"
     volumes:
@@ -28,6 +29,9 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://admin_app:admin999@db:5432/multi_sucursal
+      - SECRET_KEY=e83a9d7c3b2f1a0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6
+      - ALGORITHM=HS256
+      - EXPIRATION_HOURS=8
     depends_on:
       db:
         condition: service_healthy
