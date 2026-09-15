@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_inventario
+    environment:
+      POSTGRES_USER: admin_app
+      POSTGRES_PASSWORD: admin999
+      POSTGRES_DB: multi_sucursal
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin_app -d multi_sucursal"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - red-inventario
+
+  backend:
+    build: ./back_gestion_inventario
+    container_name: backend_fastapi
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./back_gestion_inventario:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://admin_app:admin999@db:5432/multi_sucursal
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - red-inventario
+
+  frontend:
+    build: ./front_sistema_inventario
+    container_name: frontend_react
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./front_sistema_inventario:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - red-inventario
+
+volumes:
+  pgdata:
+
+networks:
+  red-inventario:
+    driver: bridge
