@@ -22,7 +22,7 @@ services:
   backend:
     build: ./back_gestion_inventario
     container_name: backend_fastapi
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: sh -c "python -m core.migrate && python -m core.bootstrap && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     volumes:
       - ./back_gestion_inventario:/app
     ports:
@@ -32,6 +32,8 @@ services:
       - SECRET_KEY=e83a9d7c3b2f1a0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6
       - ALGORITHM=HS256
       - EXPIRATION_HOURS=8
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-InventarioLocal2026!}
     depends_on:
       db:
         condition: service_healthy

@@ -16,7 +16,9 @@ from .ventasModel import VentaModel
 from .detalleVentaModel import DetalleVentaModel
 from .transferenciasModel import TransferenciaModel
 from .detalleTransferenciaModel import DetalleTransferenciaModel
-from .movimientosInventarioModel import MovimientosInventarioModel
+from .movimientosInventarioModel import (
+    MovimientosInventarioModel,
+)
 
 # Exportación centralizada
 __all__ = [
@@ -36,3 +38,4 @@ __all__ = [
     "DetalleTransferenciaModel",
     "MovimientosInventarioModel",
 ]
+from .catalogosModel import UnidadProductoModel, ListaPrecioModel, PrecioProductoModel

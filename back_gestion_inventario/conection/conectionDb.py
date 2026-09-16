@@ -1,29 +1,41 @@
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-Base = declarative_base()
-from sqlalchemy.orm import sessionmaker
+load_dotenv()
 
-# Se obtiene la URL de conexión desde el entorno configurada en Docker
-DATABASE_URL = os.getenv("DATABASE_URL")
 
-# se crea el motor
-engine = create_engine(DATABASE_URL)
+class Base(DeclarativeBase):
+    pass
 
-# Cada petición HTTP abrirá una sesión independiente para hacer consultas
-SessionLocal = sessionmaker(
-    autocommit=False, 
-    autoflush=False, 
-    bind=engine
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./inventario.db")
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    connect_args={"check_same_thread": False}
+    if DATABASE_URL.startswith("sqlite")
+    else {"options": "-c timezone=UTC"}
+    if DATABASE_URL.startswith("postgresql")
+    else {},
 )
+if DATABASE_URL.startswith("sqlite"):
 
-# Clase base de la cual heredarán todos los modelos (tablas)
-Base = declarative_base()
+    @event.listens_for(engine, "connect")
+    def foreign_keys(connection, _):
+        connection.execute("PRAGMA foreign_keys=ON")
+
+
+SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
 
 def getDb():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close() # cerrar la conexión
+    # One transaction per request. Failures roll back all changes.
+    with SessionLocal() as db:
+        try:
+            yield db
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
