@@ -1,0 +1,20 @@
+# Framework base y servidor
+fastapi
+uvicorn
+
+# Validación de datos y esquemas
+pydantic
+
+# Conexión a base de datos PostgreSQL
+psycopg[binary]
+
+# Manejo de variables de entorno (para tu archivo .env)
+python-dotenv
+
+# Generación de reportes
+openpyxl
+fpdf2
+
+PyJWT
+pydantic[email]
+bcrypt

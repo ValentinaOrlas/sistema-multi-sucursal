@@ -35,7 +35,7 @@ export default function PurchaseForm({
     element.showModal();
     const controller = new AbortController();
     if (orderId)
-      api(`/compras/${orderId}`, { signal: controller.signal })
+      api(`/compras/ordenes/${orderId}`, { signal: controller.signal })
         .then(setOrder)
         .catch((e) => {
           if (!controller.signal.aborted) setError(e.message);
@@ -61,7 +61,7 @@ export default function PurchaseForm({
     try {
       if (mode === "supplier") {
         await api(supplier ? `/proveedores/${supplier.id}` : "/proveedores", {
-          method: supplier ? "PATCH" : "POST",
+          method: supplier ? "PUT" : "POST",
           body: {
             ...values,
             tiempo_entrega_promedio_dias: Number(
@@ -73,9 +73,10 @@ export default function PurchaseForm({
       } else if (mode === "create") {
         if (new Set(lines.map((x) => x.producto_id)).size !== lines.length)
           throw new Error("Incluye cada producto una sola vez en la orden.");
-        await api("/compras", {
+        await api("/compras/ordenes", {
           method: "POST",
           body: {
+            usuario_id: user.id,
             proveedor_id: Number(values.proveedor_id),
             sucursal_destino_id: branch.id,
             plazo_pago_dias: Number(values.plazo_pago_dias),
@@ -90,7 +91,7 @@ export default function PurchaseForm({
         );
       } else {
         if (!confirmation) return;
-        await api(`/compras/${order.id}/${confirmation}`, { method: "POST" });
+        await api(`/compras/ordenes/${order.id}/${confirmation}`, { method: "POST", body: { usuario_id: user.id } });
         onSaved(
           confirmation === "recibir"
             ? "Compra recibida: existencias, costo promedio e historial actualizados."

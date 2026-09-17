@@ -5,29 +5,16 @@ import Inventory from "./Inventory";
 import "./App.css";
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [checking, setChecking] = useState(Boolean(session.get()));
+  const [user, setUser] = useState(session.user);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    const controller = new AbortController();
-    if (session.get())
-      api("/auth/me", { signal: controller.signal })
-        .then(setUser)
-        .catch((e) => {
-          if (e.name !== "AbortError") setError(e.message);
-        })
-        .finally(() => {
-          if (!controller.signal.aborted) setChecking(false);
-        });
     const expired = () => {
       setUser(null);
-      setChecking(false);
       setError("Tu sesión terminó. Inicia sesión de nuevo.");
     };
     window.addEventListener("session-expired", expired);
     return () => {
-      controller.abort();
       window.removeEventListener("session-expired", expired);
     };
   }, []);
@@ -38,8 +25,12 @@ export default function App() {
     const data = Object.fromEntries(new FormData(event.currentTarget));
     try {
       const result = await api("/auth/login", { method: "POST", body: data });
-      session.set(result.access_token);
-      setUser(await api("/auth/me"));
+      const currentUser = {
+        ...result.usuario,
+        rol: { nombre: result.usuario.rol },
+      };
+      session.set(result.access_token, currentUser);
+      setUser(currentUser);
     } catch (e) {
       session.clear();
       setError(
@@ -51,15 +42,6 @@ export default function App() {
       setBusy(false);
     }
   }
-  if (checking)
-    return (
-      <div className="loading-screen">
-        <span className="brand-mark">
-          <Icon />
-        </span>
-        <p>Conectando con tu inventario…</p>
-      </div>
-    );
   if (user)
     return (
       <Inventory

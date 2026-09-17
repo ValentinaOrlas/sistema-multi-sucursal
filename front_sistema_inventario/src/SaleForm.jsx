@@ -38,7 +38,7 @@ export default function SaleForm({
     const controller = new AbortController();
     if (saleId)
       api(`/ventas/${saleId}`, { signal: controller.signal })
-        .then(setSale)
+        .then(sale => setSale({ ...sale, id: sale.venta_id }))
         .catch((e) => {
           if (!controller.signal.aborted) setError(e.message);
         });
@@ -124,6 +124,7 @@ export default function SaleForm({
     try {
       const body = {
         sucursal_id: branch.id,
+        usuario_id: user.id,
         detalles: lines.map((line) => ({
           producto_id: Number(line.producto_id),
           cantidad: line.cantidad,
@@ -133,7 +134,8 @@ export default function SaleForm({
       };
       if (listId) body.lista_precio_id = Number(listId);
       const result = await api("/ventas", { method: "POST", body });
-      onSaved(result);
+      const sale = result.comprobante;
+      onSaved({ ...sale, id: sale.venta_id });
     } catch (e) {
       if (e instanceof TypeError) {
         setUncertain(true);

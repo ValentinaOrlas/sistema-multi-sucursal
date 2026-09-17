@@ -55,7 +55,7 @@ export default function Inventory({ user, onLogout }) {
       try {
         const [products, categories, branches, stocks, movements] =
           await Promise.all([
-            all("/productos", signal),
+            all("/inventario/productos", signal),
             all("/categorias", signal),
             all("/sucursales", signal),
             all("/inventario", signal),
@@ -627,11 +627,11 @@ export default function Inventory({ user, onLogout }) {
                               </td>
                               <td>{number(m.stock_resultante)}</td>
                               <td>
-                                {m.usuario_id === user.id
+                                {m.responsable_nombre || (m.usuario_id === user.id
                                   ? user.nombre
                                   : m.usuario_id
                                     ? `Usuario #${m.usuario_id}`
-                                    : "Histórico sin responsable"}
+                                    : "Histórico sin responsable")}
                               </td>
                               <td className="reason-cell">{m.motivo}</td>
                             </tr>

@@ -52,14 +52,14 @@ export default function InventoryForm({
     let body;
     let method = "POST";
     if (type === "create") {
-      path = "/productos";
+      path = "/inventario/productos";
       body = { ...data, categoria_id: Number(data.categoria_id) };
     } else if (type === "edit") {
-      path = `/productos/${product.id}`;
+      path = `/inventario/productos/${product.id}`;
       method = "PATCH";
       body = { ...data, categoria_id: Number(data.categoria_id) };
     } else if (type === "delete") {
-      path = `/productos/${product.id}`;
+      path = `/inventario/productos/${product.id}`;
       method = "DELETE";
     } else if (type === "minimum") {
       path = "/inventario";

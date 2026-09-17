@@ -33,7 +33,7 @@ export default function Purchases({ user, products, branches, catalogError }) {
         if (supplierId) params.set("proveedor_id", supplierId);
         if (productId) params.set("producto_id", productId);
         const [nextOrders, nextSuppliers] = await Promise.all([
-          all(`/compras?${params}`, controller.signal),
+          all(`/compras/ordenes?${params}`, controller.signal),
           all("/proveedores", controller.signal),
         ]);
         if (!controller.signal.aborted) {
