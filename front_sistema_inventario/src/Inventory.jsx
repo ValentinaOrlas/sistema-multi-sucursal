@@ -246,6 +246,14 @@ export default function Inventory({ user, onLogout }) {
             <div>
               <strong>{user.nombre}</strong>
               <small>{labels[user.rol.nombre]}</small>
+              <button
+                onClick={onLogout}
+                className="btn-logout"
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <Icon name="logout" size={16} />{" "}
+                Cerrar sesión
+              </button>
             </div>
             <button
               className="icon-button"
@@ -627,11 +635,12 @@ export default function Inventory({ user, onLogout }) {
                               </td>
                               <td>{number(m.stock_resultante)}</td>
                               <td>
-                                {m.responsable_nombre || (m.usuario_id === user.id
-                                  ? user.nombre
-                                  : m.usuario_id
-                                    ? `Usuario #${m.usuario_id}`
-                                    : "Histórico sin responsable")}
+                                {m.responsable_nombre ||
+                                  (m.usuario_id === user.id
+                                    ? user.nombre
+                                    : m.usuario_id
+                                      ? `Usuario #${m.usuario_id}`
+                                      : "Histórico sin responsable")}
                               </td>
                               <td className="reason-cell">{m.motivo}</td>
                             </tr>

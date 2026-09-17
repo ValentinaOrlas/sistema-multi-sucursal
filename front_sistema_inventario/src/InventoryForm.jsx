@@ -33,6 +33,7 @@ export default function InventoryForm({
     move: "Registrar movimiento",
     minimum: "Configurar stock mínimo",
     category: "Nueva categoría",
+    provider: "Registrar nuevo proveedor",
   };
   useEffect(() => {
     const el = dialog.current;
@@ -71,6 +72,16 @@ export default function InventoryForm({
     } else if (type === "category") {
       path = "/categorias";
       body = data;
+    } else if (type === "provider") {
+      path = "/proveedores";
+      body = {
+        nombre: data.nombre,
+        contacto: data.contacto || null,
+        condiciones_comerciales: data.condiciones_comerciales || null,
+        tiempo_entrega_promedio_dias: Number(
+          data.tiempo_entrega_promedio_dias || 0,
+        ),
+      };
     } else {
       path = "/inventario/movimientos";
       body = {
@@ -94,7 +105,9 @@ export default function InventoryForm({
           ? "Producto eliminado."
           : type === "move"
             ? "Movimiento registrado. El stock y el historial fueron actualizados."
-            : "Cambios guardados correctamente.",
+            : type === "provider"
+              ? "Proveedor registrado exitosamente."
+              : "Cambios guardados correctamente.",
       );
     } catch (e) {
       setError(
@@ -214,6 +227,37 @@ export default function InventoryForm({
               <Field label="Descripción">
                 <textarea name="descripcion" rows={3} />
               </Field>
+            </>
+          ) : type === "provider" ? (
+            <>
+              <Field
+                label="Nombre del Proveedor"
+                name="nombre"
+                required
+                maxLength={150}
+                placeholder="Ej. Tech Components S.A.S"
+              />
+              <Field
+                label="Información de Contacto"
+                name="contacto"
+                maxLength={100}
+                placeholder="Ej. Carlos Gómez (ventas@tech.com)"
+              />
+              <Field
+                label="Condiciones Comerciales"
+                name="condiciones_comerciales"
+                maxLength={250}
+                placeholder="Ej. Crédito a 30 días, envío gratuito"
+              />
+              <Field
+                label="Tiempo de entrega promedio (días)"
+                name="tiempo_entrega_promedio_dias"
+                type="number"
+                min="0"
+                step="1"
+                required
+                placeholder="Ej. 5"
+              />
             </>
           ) : type === "minimum" ? (
             <>
@@ -460,7 +504,9 @@ export default function InventoryForm({
                     ? "Registrar producto"
                     : type === "move"
                       ? "Confirmar movimiento"
-                      : "Guardar cambios"}
+                      : type === "provider"
+                        ? "Guardar proveedor"
+                        : "Guardar cambios"}
             </button>
           )}
         </footer>
